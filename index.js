@@ -190,6 +190,43 @@ const setAwsProfile = (awsProfileName) => {
     }
 }
 
+const openCredentialsFileToEdit = () => {
+    checkPermissions();
+
+    let { WINDOWS, MAC, LINUX } = SUPPORTED_PLATFORMS;
+    let currentPlatform = os.platform();
+
+    if(SUPPORTED_PLATFORMS[`${currentPlatform}`]){
+        switch(currentPlatform){
+            case WINDOWS:
+                exec(`notepad ${awsDefaultCredentialsPath}`, (err, stdOut, stdErr) => {
+                    if(err){
+                        console.log(`ERROR: ${err}`)
+                        return;
+                    }
+                    if(stdErr){
+                        console.log(`STDERR: ${stdErr}`)
+                        return;
+                    }
+                });
+                break;
+            case MAC:
+            case LINUX:
+                exec(`sudo vi ${awsDefaultCredentialsPath}`, (err, stdOut, stdErr) => {
+                    if(err){
+                        console.log(`ERROR: ${err}`)
+                        return;
+                    }
+                    if(stdErr){
+                        console.log(`STDERR: ${stdErr}`)
+                        return;
+                    }
+                });
+                break;
+        }
+    }
+}
+
 const removeConfiguration = () => {
     try{
         if(fs.existsSync(awsChosenProfileSymlink)){
@@ -203,6 +240,9 @@ const removeConfiguration = () => {
         handleErrors(ERROR_TYPES.NO_PERM);
         return
     }
+
+    let { WINDOWS, MAC, LINUX } = SUPPORTED_PLATFORMS;
+    let currentPlatform = os.platform();
 
     if(SUPPORTED_PLATFORMS[`${currentPlatform}`]){
         switch(currentPlatform){
@@ -323,6 +363,14 @@ cli
             addAWSProfile(profileNameToAdd, accessKeyToAdd, secretKeyToAdd);
         })
     });
+
+cli
+    .command('edit')
+    .description(`Opens your AWS credentials file with either notepad or vi depending on your platform so that you can edit.`)
+    .action(() => {
+        openCredentialsFileToEdit();
+    });
+
 
 cli
     .command('uninstall')
