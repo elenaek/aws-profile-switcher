@@ -15,7 +15,7 @@ const { handleErrors } = require('./errors');
 const awsDefaultDirectory = path.join(os.homedir(),".aws");
 const awsDefaultCredentialsPath = path.join(awsDefaultDirectory, "credentials");
 const awsProfileLinkFilesDir = path.join(awsDefaultDirectory, "profiles");
-const awsChosenProfileSymlink = path.join(awsDefaultDirectory,"chosenProfile");
+const awsChosenProfileSymlink = path.join(awsDefaultDirectory,"awsps_link");
 
 const initialize = () => {
     initializeProfiles(awsDefaultCredentialsPath);
@@ -378,6 +378,12 @@ cli
     .action(() => {
         removeConfiguration();
     });
+
+cli.on('command:*', () => {
+        cli.outputHelp();
+        return
+    });
+
 
 cli.parse(process.argv);
 
