@@ -1,0 +1,17 @@
+{
+  "name": "awsps",
+  "version": "0.5.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "elenaek",
+  "preferGlobal": true,
+  "bin": "./index.js",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^4.1.0",
+    "inquirer": "^7.0.3"
+  }
+}
