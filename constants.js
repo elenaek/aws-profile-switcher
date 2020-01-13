@@ -1,4 +1,7 @@
+const { version } = require('./package.json');
+
 module.exports = {
+    VERSION: version,
     SUPPORTED_PLATFORMS: {
         "win32": true,
         "darwin": true,

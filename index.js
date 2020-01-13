@@ -10,7 +10,7 @@ const cli = require('commander');
 const { prompt } = require('inquirer');
 
 
-const { SUPPORTED_PLATFORMS, ERROR_TYPES } = require('./constants');
+const { SUPPORTED_PLATFORMS, ERROR_TYPES, VERSION } = require('./constants');
 const { handleErrors } = require('./errors');
 const awsDefaultDirectory = path.join(os.homedir(),".aws");
 const awsDefaultCredentialsPath = path.join(awsDefaultDirectory, "credentials");
@@ -268,7 +268,7 @@ const removeConfiguration = () => {
 
 cli
     .name("awsps")
-    .version("0.5.0")
+    .version(VERSION)
     .description("Tool used for easily switching between AWS profiles declared in your credentials file for AWS cli.");
 
 cli
