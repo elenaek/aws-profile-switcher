@@ -7,6 +7,7 @@ awsps is a shell tool for easily switching and mangaing AWS profiles for AWS CLI
 
 # Supported Platforms (Tested)
 - Windows 10
+- MacOS High Sierra
 
 # Getting started
 1. `npm install -g awsps` : Installs awsps

@@ -1,20 +1,21 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
+
 const path = require('path');
 const os = require('os');
 const { exec } = require('child_process');
 
+const fs = require('fs-extra');
 const cli = require('commander');
 const { prompt } = require('inquirer');
 
 
 const { SUPPORTED_PLATFORMS, ERROR_TYPES } = require('./constants');
 const { handleErrors } = require('./errors');
-const awsDefaultDirectory = `${os.homedir()}\\.aws`;
-const awsDefaultCredentialsPath = `${os.homedir()}\\.aws\\credentials`;
-const awsProfileLinkFilesDir = `${awsDefaultDirectory}\\profiles`;
-const awsChosenProfileSymlink = `${awsDefaultDirectory}\\chosenProfile`;
+const awsDefaultDirectory = path.join(os.homedir(),".aws");
+const awsDefaultCredentialsPath = path.join(awsDefaultDirectory, "credentials");
+const awsProfileLinkFilesDir = path.join(awsDefaultDirectory, "profiles");
+const awsChosenProfileSymlink = path.join(awsDefaultDirectory,"chosenProfile");
 
 const initialize = () => {
     initializeProfiles(awsDefaultCredentialsPath);
@@ -28,7 +29,7 @@ const initializeLink = () => {
         let currentPlatform = os.platform();
         
         try{
-            fs.symlinkSync(`${awsProfileLinkFilesDir}\\default`, awsChosenProfileSymlink, "file")
+            fs.symlinkSync(path.join(awsProfileLinkFilesDir,"default"), awsChosenProfileSymlink, "file")
         } catch(err) {
             handleErrors(ERROR_TYPES.NO_PERM);
             return
@@ -51,7 +52,10 @@ const initializeLink = () => {
                     break;
                 case MAC:
                 case LINUX:
-                    exec(`echo export AWS_SHARED_CREDENTIALS_FILE=${awsChosenProfileSymlink} >> ~/.bash_profile`, (err, stdOut, stdErr) => {
+                    let homeDir = os.homedir();
+                    let bashProfilePath = path.join(homeDir, ".bash_profile");
+                    fs.appendFileSync(bashProfilePath, `export AWS_SHARED_CREDENTIALS_FILE=${awsChosenProfileSymlink}\n export AWS_PROFILE=default`)
+                    exec(`export AWS_SHARED_CREDENTIALS_FILE=${awsChosenProfileSymlink} AWS_PROFILE=default`, (err, stdOut, stdErr) => {
                         if(err){
                             console.log(`ERROR: ${err}`)
                             return;
@@ -129,10 +133,12 @@ const createProfileFiles = (parsedProfileObj) => {
         }
     }
 
+    fs.emptyDirSync(awsProfileLinkFilesDir);
+
     let profilesArr = Object.keys(parsedProfileObj);
 
     profilesArr.forEach((profileName) => {
-        let profileFilePath = `${awsProfileLinkFilesDir}\\${profileName}`;
+        let profileFilePath = path.join(awsProfileLinkFilesDir, profileName);
         if(!fs.existsSync(profileFilePath)){
             fs.writeFileSync(profileFilePath, parsedProfileObj[`${profileName}`]);
         }
@@ -155,7 +161,7 @@ const listAvailableProfiles = () => {
 }
 
 const checkPermissions = () => {
-    let testSymlinkPath = `${awsDefaultDirectory}\\test.tmp`;
+    let testSymlinkPath = path.join(awsDefaultDirectory, "test.tmp");
     try{
         fs.accessSync(awsDefaultCredentialsPath, fs.constants.W_OK);
         fs.symlinkSync(awsDefaultCredentialsPath, testSymlinkPath);
@@ -169,7 +175,7 @@ const checkPermissions = () => {
 }
 
 const setAwsProfile = (awsProfileName) => {
-    let targetProfilePath = `${awsProfileLinkFilesDir}\\${awsProfileName}`;
+    let targetProfilePath = path.join(awsProfileLinkFilesDir,awsProfileName);
 
     if(fs.existsSync(targetProfilePath)){
         try{
@@ -266,6 +272,8 @@ cli
         checkPermissions();
         let availableProfilesArr = listAvailableProfiles();
         let currentProfile = getCurrentProfile();
+        initializeProfiles(awsDefaultCredentialsPath);
+
         if(profileName){
             setAwsProfile(profileName);
         }
