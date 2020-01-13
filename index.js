@@ -22,6 +22,7 @@ const initialize = () => {
 }
 
 const initializeLink = () => {
+    checkPermissions();
     if(!fs.existsSync(awsChosenProfileSymlink)){
         let { WINDOWS, MAC, LINUX } = SUPPORTED_PLATFORMS;
         let currentPlatform = os.platform();
@@ -37,6 +38,20 @@ const initializeLink = () => {
             switch(currentPlatform){
                 case WINDOWS:
                     exec(`setx AWS_SHARED_CREDENTIALS_FILE ${awsChosenProfileSymlink} & setx AWS_PROFILE default`, (err, stdOut, stdErr) => {
+                        if(err){
+                            console.log(`ERROR: ${err}`)
+                            return;
+                        }
+                        if(stdErr){
+                            console.log(`STDERR: ${stdErr}`)
+                            return;
+                        }
+                        console.log(`Your AWS profile switcher environment has been configured. Please restart your shell to begin using it!`)
+                    });
+                    break;
+                case MAC:
+                case LINUX:
+                    exec(`echo export AWS_SHARED_CREDENTIALS_FILE=${awsChosenProfileSymlink} >> ~/.bash_profile`, (err, stdOut, stdErr) => {
                         if(err){
                             console.log(`ERROR: ${err}`)
                             return;
