@@ -1,12 +1,21 @@
 {
   "name": "awsps",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "elenaek",
+  "keywords": [
+    "aws",
+    "amazon",
+    "profile",
+    "iam",
+    "switcher",
+    "aws credentials",
+    "credentials"
+  ],
   "preferGlobal": true,
   "bin": "./index.js",
   "license": "ISC",
